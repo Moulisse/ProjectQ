@@ -1,8 +1,10 @@
 <script setup lang="ts">
+const { init } = useGame()
+
+const canvas = ref()
+onMounted(() => init(canvas.value))
 </script>
 
 <template>
-  <div>
-    test
-  </div>
+  <canvas ref="canvas" />
 </template>

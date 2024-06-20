@@ -13,7 +13,9 @@
     "postinstall": "npx simple-git-hooks"
   },
   "dependencies": {
+    "@dimforge/rapier2d": "^0.13.1",
     "@vueuse/core": "^10.9.0",
+    "pixi.js": "^8.2.0",
     "vue": "^3.4.27",
     "vue-router": "^4.3.2"
   },
@@ -41,6 +43,8 @@
     "unplugin-vue-macros": "^2.9.2",
     "unplugin-vue-router": "^0.8.6",
     "vite": "^5.2.11",
+    "vite-plugin-top-level-await": "^1.4.1",
+    "vite-plugin-wasm": "^3.3.0",
     "vitest": "^1.6.0",
     "vue-tsc": "^2.0.19"
   },
