@@ -14,6 +14,9 @@ importers:
       '@vueuse/core':
         specifier: ^10.9.0
         version: 10.9.0(vue@3.4.27(typescript@5.4.5))
+      pixi-viewport:
+        specifier: ^5.0.3
+        version: 5.0.3
       pixi.js:
         specifier: ^8.2.0
         version: 8.2.0
@@ -2463,6 +2466,9 @@ packages:
     resolution: {integrity: sha512-eG2dWTVw5bzqGRztnHExczNxt5VGsE6OwTeCG3fdUf9KBsZzO3R5OIIIzWR+iZA0NtZ+RDVdaoE2dK1cn6jH4g==}
     engines: {node: '>=0.10'}
     hasBin: true
+
+  pixi-viewport@5.0.3:
+    resolution: {integrity: sha512-DGG7cg2vUltAiL2fanzYPLR+L6qBeoskPfbUXxN6CYKW+fkni5cF9J1t2WBTmyBnC3kVq3ATFE2KDi7zy2FY8A==}
 
   pixi.js@8.2.0:
     resolution: {integrity: sha512-hwPZ3sBYNbgrTyRmYAjQUyqZehiTxc1Qy0SI9GGrHLwtC15AtY7JaAk3ZVjnUo04wz9b0BHLjpRYnEUuIOENMw==}
@@ -5792,6 +5798,8 @@ snapshots:
   picomatch@4.0.2: {}
 
   pidtree@0.6.0: {}
+
+  pixi-viewport@5.0.3: {}
 
   pixi.js@8.2.0:
     dependencies:
