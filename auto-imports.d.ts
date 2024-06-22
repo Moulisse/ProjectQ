@@ -163,6 +163,7 @@ declare global {
   const useElementHover: typeof import('@vueuse/core')['useElementHover']
   const useElementSize: typeof import('@vueuse/core')['useElementSize']
   const useElementVisibility: typeof import('@vueuse/core')['useElementVisibility']
+  const useEnemy: typeof import('./src/composables/useEnemy')['default']
   const useEventBus: typeof import('@vueuse/core')['useEventBus']
   const useEventListener: typeof import('@vueuse/core')['useEventListener']
   const useEventSource: typeof import('@vueuse/core')['useEventSource']

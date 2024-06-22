@@ -1,18 +1,27 @@
 import type { World } from '@dimforge/rapier2d'
 import { Application, Graphics } from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
+import { EDot } from './enemies/dot'
+import type { Enemy } from './enemies/_base'
+
+const WORLD_SIZE = 4000
 
 export default function () {
-  const world = ref<World>()
+  let world: World
+  let app: Application
+  let viewport: Viewport
+
+  let currentEnemies: Enemy[] = []
+
   /**
    *
    */
   function init(canvas: HTMLCanvasElement) {
     import('@dimforge/rapier2d').then(async (RAPIER) => {
-      world.value = new RAPIER.World({ x: 0, y: 0 })
+      world = new RAPIER.World({ x: 0, y: 0 })
 
       // Create a new application
-      const app = new Application()
+      app = new Application()
 
       // Initialize the application
       await app.init({
@@ -22,12 +31,13 @@ export default function () {
       })
 
       // create viewport
-      const viewport = new Viewport({
+      viewport = new Viewport({
         screenWidth: window.innerWidth,
         screenHeight: window.innerHeight,
-        worldWidth: 10000,
-        worldHeight: 10000,
+        worldWidth: WORLD_SIZE,
+        worldHeight: WORLD_SIZE,
         events: app.renderer.events,
+        disableOnContextMenu: true,
       })
 
       // add the viewport to the stage
@@ -44,38 +54,16 @@ export default function () {
         .decelerate({
           friction: 0.93,
         })
-        .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
         .clamp({
           direction: 'all',
         })
-
-      const balls = Array.from({ length: 10 }).map(() => {
-        if (!world.value)
-          throw new Error('error')
-
-        const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic()
-          .setTranslation(viewport.worldWidth / 2 + Math.random(), viewport.worldHeight / 2 + Math.random())
-          .setLinearDamping(10)
-        const rigidBody = world.value.createRigidBody(rigidBodyDesc)
-
-        const colliderDesc = RAPIER.ColliderDesc.ball(10)
-        world.value?.createCollider(colliderDesc, rigidBody)
-
-        const graphic = new Graphics()
-        graphic.circle(colliderDesc.translation.x, colliderDesc.translation.y, 9.5)
-        graphic.fill(0xDE3249)
-        viewport.addChild(graphic)
-
-        graphic.eventMode = 'static'
-        graphic.cursor = 'pointer'
-
-        const ball = {
-          rigidBody,
-          graphic,
-        }
-
-        return ball
-      })
+        .clampZoom({
+          minWidth: 100,
+          minHeight: 100,
+          maxWidth: WORLD_SIZE / 2,
+          maxHeight: WORLD_SIZE / 2,
+        })
+        .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
 
       const graphic = new Graphics({
         zIndex: -1,
@@ -88,15 +76,40 @@ export default function () {
        * Add physics loop
        */
       app.ticker.add(() => {
-        world.value?.step()
-        for (const ball of balls)
-          ball.graphic.position = ball.rigidBody.translation()
+        world.step()
+        for (const enemy of currentEnemies) {
+          enemy.graphic.position = {
+            x: enemy.rigidBody.translation().x,
+            y: enemy.rigidBody.translation().y,
+          }
+        }
       })
+
+      startWave()
     })
   }
 
+  function startWave() {
+    currentEnemies = [
+      ...Array.from({ length: 2 }).map(() =>
+        new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 - 200),
+      ),
+      ...Array.from({ length: 50 }).map(() =>
+        new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 - 200),
+      ),
+      ...Array.from({ length: 50 }).map(() =>
+        new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 + 200),
+      ),
+      ...Array.from({ length: 50 }).map(() =>
+        new EDot(world, viewport, viewport.worldWidth / 2 + 250, viewport.worldHeight / 2 - 200),
+      ),
+      ...Array.from({ length: 50 }).map(() =>
+        new EDot(world, viewport, viewport.worldWidth / 2 + 250, viewport.worldHeight / 2 + 200),
+      ),
+    ]
+  }
+
   return {
-    world,
     init,
   }
 }
