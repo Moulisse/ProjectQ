@@ -1,4 +1,4 @@
-import { ColliderDesc, type RigidBody, RigidBodyDesc, type World } from '@dimforge/rapier2d'
+import { ColliderDesc, type RigidBody, RigidBodyDesc, type World } from '@dimforge/rapier2d-compat'
 import { Viewport } from 'pixi-viewport'
 import type { Application } from 'pixi.js'
 import { Graphics } from 'pixi.js'

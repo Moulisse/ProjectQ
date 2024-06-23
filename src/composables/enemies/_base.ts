@@ -1,5 +1,5 @@
-import type { RigidBody, World } from '@dimforge/rapier2d'
-import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier2d'
+import type { RigidBody, World } from '@dimforge/rapier2d-compat'
+import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier2d-compat'
 import type { NavMesh } from 'navmesh'
 import type { Viewport } from 'pixi-viewport'
 import { Graphics, Point } from 'pixi.js'
