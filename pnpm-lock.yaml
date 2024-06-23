@@ -14,6 +14,9 @@ importers:
       '@vueuse/core':
         specifier: ^10.9.0
         version: 10.9.0(vue@3.4.27(typescript@5.4.5))
+      navmesh-generator:
+        specifier: ^1.0.3
+        version: 1.0.3
       pinia:
         specifier: ^2.1.7
         version: 2.1.7(typescript@5.4.5)(vue@3.4.27(typescript@5.4.5))
@@ -2315,6 +2318,9 @@ packages:
 
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
+
+  navmesh-generator@1.0.3:
+    resolution: {integrity: sha512-plmckfECJ7Z8tfxlRMaY+Z/cfXylQvBkA+hv++pGQq5hGQdc0HRmLb7iAAIWYLOXA5ARn7XokQdb6OtDnSy8xA==}
 
   node-fetch-native@1.6.4:
     resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
@@ -5669,6 +5675,8 @@ snapshots:
   natural-compare-lite@1.4.0: {}
 
   natural-compare@1.4.0: {}
+
+  navmesh-generator@1.0.3: {}
 
   node-fetch-native@1.6.4: {}
 

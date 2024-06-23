@@ -1,17 +1,13 @@
 import type { World } from '@dimforge/rapier2d'
 import type { Point } from 'pixi.js'
-import { Application, Graphics } from 'pixi.js'
-import { Viewport } from 'pixi-viewport'
+import { Application } from 'pixi.js'
 import { EDot } from './enemies/dot'
 import type { Enemy } from './enemies/_base'
 import { Scene } from './scenes/_base'
 
-const WORLD_SIZE = 4000
-
 export const useGameStore = defineStore('game', () => {
   let world: World
   let app: Application
-  let viewport: Viewport
 
   let currentEnemies: Enemy[] = []
 
@@ -32,54 +28,13 @@ export const useGameStore = defineStore('game', () => {
         resizeTo: window,
       })
 
-      // create viewport
-      viewport = new Viewport({
-        screenWidth: window.innerWidth,
-        screenHeight: window.innerHeight,
-        worldWidth: WORLD_SIZE,
-        worldHeight: WORLD_SIZE,
-        events: app.renderer.events,
-        disableOnContextMenu: true,
-      })
+      const scene = new Scene(world, app)
 
       let flag: Point
 
-      viewport.on('mousemove', (e) => {
-        flag = viewport.toLocal(e.global)
+      scene.viewport.on('mousemove', (e) => {
+        flag = scene.viewport.toLocal(e.global)
       })
-
-      // add the viewport to the stage
-      app.stage.addChild(viewport)
-
-      // activate plugins
-      viewport
-        .drag()
-        .pinch()
-        .wheel({
-          percent: 2,
-          smooth: 20,
-        })
-        .decelerate({
-          friction: 0.93,
-        })
-        .clamp({
-          direction: 'all',
-        })
-        .clampZoom({
-          minWidth: 100,
-          minHeight: 100,
-          maxWidth: WORLD_SIZE / 2,
-          maxHeight: WORLD_SIZE / 2,
-        })
-        .fit()
-        .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
-
-      const graphic = new Graphics({
-        zIndex: -1,
-      })
-      graphic.rect(0, 0, viewport.worldWidth, viewport.worldHeight)
-      graphic.fill('#101220')
-      viewport.addChild(graphic)
 
       /**
        * Add physics loop
@@ -105,33 +60,26 @@ export const useGameStore = defineStore('game', () => {
         }
       })
 
-      loadScene()
-
-      startWave()
+      startWave(scene)
     })
   }
 
-  function loadScene() {
-    // eslint-disable-next-line no-new
-    new Scene(world, viewport, viewport.worldWidth / 2, viewport.worldHeight / 2)
-  }
-
-  function startWave() {
+  function startWave(scene: Scene) {
     currentEnemies = [
       ...Array.from({ length: 1 }).map(() =>
-        new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 - 200),
+        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 - 250, scene.viewport.worldHeight / 2 - 200),
       ),
       ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 - 200),
+        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 - 250, scene.viewport.worldHeight / 2 - 200),
       ),
       ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 + 200),
+        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 - 250, scene.viewport.worldHeight / 2 + 200),
       ),
       ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, viewport, viewport.worldWidth / 2 + 250, viewport.worldHeight / 2 - 200),
+        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 + 250, scene.viewport.worldHeight / 2 - 200),
       ),
       ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, viewport, viewport.worldWidth / 2 + 250, viewport.worldHeight / 2 + 200),
+        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 + 250, scene.viewport.worldHeight / 2 + 200),
       ),
     ]
   }
