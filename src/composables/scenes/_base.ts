@@ -158,11 +158,11 @@ export class Scene {
   }
 
   private generateNavMesh() {
-    const navMeshGenerator = new NavMeshGenerator(0, 0, this.WORLD_SIZE, this.WORLD_SIZE, 10)
+    const navMeshGenerator = new NavMeshGenerator(0, 0, this.WORLD_SIZE, this.WORLD_SIZE, 3)
 
     const navMeshPolygons = navMeshGenerator.buildNavMesh(
       this.obstaclesData.map(obs => obs.shape),
-      1,
+      5,
     )
 
     return new NavMesh(navMeshPolygons)
@@ -182,43 +182,30 @@ export class Scene {
     }))
     this.navMesh = this.generateNavMesh()
 
-    // const path = this.navMesh.findPath({ x: 1000, y: 500 }, { x: 1600, y: 1500 })
-
-    // if (path) {
-    //   const graphic = new Graphics()
-    //     .moveTo(path[0].x, path[0].y)
-
-    //   for (const point of path)
-    //     graphic.lineTo(point.x, point.y)
-
-    //   graphic.stroke('#ffff00')
-    //   this.viewport.addChild(graphic)
-    // }
-
     // Display navMesh
-    for (const tri of this.navMesh.getPolygons()) {
-      const face = new Graphics()
-      face.poly(tri.getPoints())
+    // for (const tri of this.navMesh.getPolygons()) {
+    //   const face = new Graphics()
+    //   face.poly(tri.getPoints())
 
-      face.fill('#00ff0040')
-      this.viewport.addChild(face)
+    //   face.fill('#00ff0040')
+    //   this.viewport.addChild(face)
 
-      const line = new Graphics()
+    //   const line = new Graphics()
 
-      for (const point of tri.getPoints()) {
-        if (tri.getPoints().indexOf(point) === 0)
-          line.moveTo(point.x, point.y)
-        else
-          line.lineTo(point.x, point.y)
+    //   for (const point of tri.getPoints()) {
+    //     if (tri.getPoints().indexOf(point) === 0)
+    //       line.moveTo(point.x, point.y)
+    //     else
+    //       line.lineTo(point.x, point.y)
 
-        const vertex = new Graphics()
-        vertex.circle(point.x, point.y, 5)
+    //     const vertex = new Graphics()
+    //     vertex.circle(point.x, point.y, 5)
 
-        vertex.fill('#00ff00')
-        this.viewport.addChild(vertex)
-      }
-      line.stroke('#00ff00')
-      this.viewport.addChild(line)
-    }
+    //     vertex.fill('#00ff00')
+    //     this.viewport.addChild(vertex)
+    //   }
+    //   line.stroke('#00ff00')
+    //   this.viewport.addChild(line)
+    // }
   }
 }

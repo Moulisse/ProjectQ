@@ -1,5 +1,4 @@
 import type { World } from '@dimforge/rapier2d'
-import type { Point } from 'pixi.js'
 import { Application } from 'pixi.js'
 import { EDot } from './enemies/dot'
 import type { Enemy } from './enemies/_base'
@@ -30,26 +29,21 @@ export const useGameStore = defineStore('game', () => {
 
       const scene = new Scene(world, app)
 
-      let flag: Point
-
       scene.viewport.on('mousemove', (e) => {
-        flag = scene.viewport.toLocal(e.global)
+        for (const enemy of currentEnemies)
+          enemy.setFollow(scene.navMesh, scene.viewport.toLocal(e.global))
       })
 
       /**
        * Add physics loop
        */
       app.ticker.add(() => {
-        if (flag) {
-          for (const enemy of currentEnemies) {
-            const direction = flag.subtract(enemy.graphic.position)
-            const speed = 250
-            const approachSpeed = Math.min(speed, direction.magnitude() * speed ** (1 / 3))
+        for (const enemy of currentEnemies) {
+          enemy.setPath(scene.navMesh)
 
-            if (direction.magnitude() > 1)
-              enemy.rigidBody.setLinvel(direction.normalize().multiply({ x: approachSpeed, y: approachSpeed }), true)
-          }
+          enemy.move()
         }
+
         world.step()
 
         for (const enemy of currentEnemies) {
