@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import App from './App.vue'
+import 'pixi.js/math-extras'
 
 import '@unocss/reset/tailwind.css'
 import './styles/main.css'
