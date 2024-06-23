@@ -14,6 +14,9 @@ importers:
       '@vueuse/core':
         specifier: ^10.9.0
         version: 10.9.0(vue@3.4.27(typescript@5.4.5))
+      navmesh:
+        specifier: ^2.3.1
+        version: 2.3.1
       navmesh-generator:
         specifier: ^1.0.3
         version: 1.0.3
@@ -1453,6 +1456,9 @@ packages:
   core-js-compat@3.37.1:
     resolution: {integrity: sha512-9TNiImhKvQqSUkOvk/mMRZzOANTiEVC7WaBNhHcKM7x+/5E1l5NvsysR19zuDQScE8k+kfQXWRN3AtS/eOSHpg==}
 
+  core-js@3.37.1:
+    resolution: {integrity: sha512-Xn6qmxrQZyB0FFY8E3bgRXei3lWDJHhvI+u0q9TKIYM49G8pAr0FgnnrFRAmsbptZL1yxRADVXn+x5AGsbBfyw==}
+
   cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -2095,6 +2101,10 @@ packages:
   ismobilejs@1.1.1:
     resolution: {integrity: sha512-VaFW53yt8QO61k2WJui0dHf4SlL8lxBofUuUmwBo0ljPk0Drz2TiuDW4jo3wDcv41qy/SxrJ+VAzJ/qYqsmzRw==}
 
+  javascript-astar@https://codeload.github.com/mikewesthad/javascript-astar/tar.gz/c0304b12861eda334e27f2f15d701c10b296593f:
+    resolution: {tarball: https://codeload.github.com/mikewesthad/javascript-astar/tar.gz/c0304b12861eda334e27f2f15d701c10b296593f}
+    version: 0.4.2
+
   jiti@1.21.0:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
     hasBin: true
@@ -2321,6 +2331,9 @@ packages:
 
   navmesh-generator@1.0.3:
     resolution: {integrity: sha512-plmckfECJ7Z8tfxlRMaY+Z/cfXylQvBkA+hv++pGQq5hGQdc0HRmLb7iAAIWYLOXA5ARn7XokQdb6OtDnSy8xA==}
+
+  navmesh@2.3.1:
+    resolution: {integrity: sha512-psNjH0lNJbprtlTNo4gmhqIgNhZxQgxiGtnGAOmtL7I/tByoGfAfDX+/LD/5b26XuLZw3XXTr0+tHScnm5MBWw==}
 
   node-fetch-native@1.6.4:
     resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
@@ -4733,6 +4746,8 @@ snapshots:
     dependencies:
       browserslist: 4.23.0
 
+  core-js@3.37.1: {}
+
   cross-spawn@7.0.3:
     dependencies:
       path-key: 3.1.1
@@ -5439,6 +5454,8 @@ snapshots:
 
   ismobilejs@1.1.1: {}
 
+  javascript-astar@https://codeload.github.com/mikewesthad/javascript-astar/tar.gz/c0304b12861eda334e27f2f15d701c10b296593f: {}
+
   jiti@1.21.0: {}
 
   js-beautify@1.14.9:
@@ -5677,6 +5694,11 @@ snapshots:
   natural-compare@1.4.0: {}
 
   navmesh-generator@1.0.3: {}
+
+  navmesh@2.3.1:
+    dependencies:
+      core-js: 3.37.1
+      javascript-astar: https://codeload.github.com/mikewesthad/javascript-astar/tar.gz/c0304b12861eda334e27f2f15d701c10b296593f
 
   node-fetch-native@1.6.4: {}
 

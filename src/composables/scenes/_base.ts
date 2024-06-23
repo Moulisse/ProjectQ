@@ -2,6 +2,8 @@ import { ColliderDesc, type RigidBody, RigidBodyDesc, type World } from '@dimfor
 import { Viewport } from 'pixi-viewport'
 import type { Application } from 'pixi.js'
 import { Graphics } from 'pixi.js'
+import { NavMeshGenerator } from 'navmesh-generator'
+import { NavMesh } from 'navmesh'
 
 type Shape = { x: number, y: number } []
 type ObstacleTypes = 'polyligne' | 'convexHull'
@@ -11,6 +13,7 @@ export class Scene {
   WORLD_SIZE = 2000
 
   viewport: Viewport
+  navMesh: NavMesh
 
   protected ring = {
     nbPoints: 64,
@@ -37,15 +40,6 @@ export class Scene {
     {
       type: 'convexHull',
       shape: [
-        { x: this.WORLD_SIZE * 0.4, y: this.WORLD_SIZE * 0.3 },
-        { x: this.WORLD_SIZE * 0.6, y: this.WORLD_SIZE * 0.3 },
-        { x: this.WORLD_SIZE * 0.6, y: this.WORLD_SIZE * 0.35 },
-        { x: this.WORLD_SIZE * 0.4, y: this.WORLD_SIZE * 0.35 },
-      ],
-    },
-    {
-      type: 'convexHull',
-      shape: [
         { x: this.WORLD_SIZE * 0.4, y: this.WORLD_SIZE * 0.7 },
         { x: this.WORLD_SIZE * 0.6, y: this.WORLD_SIZE * 0.7 },
         { x: this.WORLD_SIZE * 0.6, y: this.WORLD_SIZE * 0.65 },
@@ -63,6 +57,15 @@ export class Scene {
         { x: this.WORLD_SIZE * 0.2, y: this.WORLD_SIZE * 0.5 },
       ],
     },
+    ...Array.from({ length: 10 }).map((_v, i) => ({
+      type: 'convexHull' as ObstacleTypes,
+      shape: [
+        { x: this.WORLD_SIZE * (0.29 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.3 },
+        { x: this.WORLD_SIZE * (0.31 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.3 },
+        { x: this.WORLD_SIZE * (0.31 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.35 },
+        { x: this.WORLD_SIZE * (0.29 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.35 },
+      ],
+    })),
   ]
 
   obstacles: {
@@ -71,39 +74,13 @@ export class Scene {
     graphic: Graphics
   }[]
 
-  private generateRigidBody(data: ObstacleData, world: World) {
-    const shapeC = new Float32Array(data.shape.map(point => Object.values(point)).flat())
-
-    const rigidBodyDesc = RigidBodyDesc.fixed()
-    const rigidBody = world.createRigidBody(rigidBodyDesc)
-
-    const colliderDesc = data.type === 'polyligne'
-      ? ColliderDesc.polyline(shapeC)
-      : ColliderDesc.convexHull(shapeC)
-    if (colliderDesc)
-      world.createCollider(colliderDesc, rigidBody)
-
-    return rigidBody
-  }
-
-  private generateGraphics(data: ObstacleData, viewport: Viewport) {
-    const graphic = new Graphics()
-    graphic.poly(data.shape)
-
-    graphic.fill('#56b8d0')
-    viewport.addChild(graphic)
-
-    return graphic
-  }
-
   /**
-   * Initialize viewport and generate obstacle
-   * @param world
+   * Init Viewport
    * @param app
    */
-  constructor(world: World, app: Application) {
+  private init(app: Application) {
     // create viewport
-    this.viewport = new Viewport({
+    const viewport = new Viewport({
       screenWidth: window.innerWidth,
       screenHeight: window.innerHeight,
       worldWidth: this.WORLD_SIZE,
@@ -113,10 +90,10 @@ export class Scene {
     })
 
     // add the viewport to the stage
-    app.stage.addChild(this.viewport)
+    app.stage.addChild(viewport)
 
     // activate plugins
-    this.viewport
+    viewport
       .drag()
       .pinch()
       .wheel({
@@ -136,20 +113,112 @@ export class Scene {
         maxHeight: 1500,
       })
       .fit()
-      .moveCenter(this.viewport.worldWidth / 2, this.viewport.worldHeight / 2)
+      .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
 
     // adds world background
     const graphic = new Graphics({
       zIndex: -1,
     })
-    graphic.rect(0, 0, this.viewport.worldWidth, this.viewport.worldHeight)
+    graphic.rect(0, 0, viewport.worldWidth, viewport.worldHeight)
     graphic.fill('#101220')
+    viewport.addChild(graphic)
+
+    return viewport
+  }
+
+  /**
+   *
+   */
+  private generateRigidBody(data: ObstacleData, world: World) {
+    const shapeC = new Float32Array(data.shape.map(point => Object.values(point)).flat())
+
+    const rigidBodyDesc = RigidBodyDesc.fixed()
+    const rigidBody = world.createRigidBody(rigidBodyDesc)
+
+    const colliderDesc = data.type === 'polyligne'
+      ? ColliderDesc.polyline(shapeC)
+      : ColliderDesc.convexHull(shapeC)
+    if (colliderDesc)
+      world.createCollider(colliderDesc, rigidBody)
+
+    return rigidBody
+  }
+
+  /**
+   *
+   */
+  private generateGraphics(data: ObstacleData) {
+    const graphic = new Graphics()
+    graphic.poly(data.shape)
+
+    graphic.fill('#56b8d0')
     this.viewport.addChild(graphic)
 
+    return graphic
+  }
+
+  private generateNavMesh() {
+    const navMeshGenerator = new NavMeshGenerator(0, 0, this.WORLD_SIZE, this.WORLD_SIZE, 10)
+
+    const navMeshPolygons = navMeshGenerator.buildNavMesh(
+      this.obstaclesData.map(obs => obs.shape),
+      1,
+    )
+
+    return new NavMesh(navMeshPolygons)
+  }
+
+  /**
+   * Initialize viewport and generate obstacle
+   * @param world
+   * @param app
+   */
+  constructor(world: World, app: Application) {
+    this.viewport = this.init(app)
     this.obstacles = this.obstaclesData.map(obstacle => ({
       shape: obstacle.shape,
       rigidBody: this.generateRigidBody(obstacle, world),
-      graphic: this.generateGraphics(obstacle, this.viewport),
+      graphic: this.generateGraphics(obstacle),
     }))
+    this.navMesh = this.generateNavMesh()
+
+    // const path = this.navMesh.findPath({ x: 1000, y: 500 }, { x: 1600, y: 1500 })
+
+    // if (path) {
+    //   const graphic = new Graphics()
+    //     .moveTo(path[0].x, path[0].y)
+
+    //   for (const point of path)
+    //     graphic.lineTo(point.x, point.y)
+
+    //   graphic.stroke('#ffff00')
+    //   this.viewport.addChild(graphic)
+    // }
+
+    // Display navMesh
+    for (const tri of this.navMesh.getPolygons()) {
+      const face = new Graphics()
+      face.poly(tri.getPoints())
+
+      face.fill('#00ff0040')
+      this.viewport.addChild(face)
+
+      const line = new Graphics()
+
+      for (const point of tri.getPoints()) {
+        if (tri.getPoints().indexOf(point) === 0)
+          line.moveTo(point.x, point.y)
+        else
+          line.lineTo(point.x, point.y)
+
+        const vertex = new Graphics()
+        vertex.circle(point.x, point.y, 5)
+
+        vertex.fill('#00ff00')
+        this.viewport.addChild(vertex)
+      }
+      line.stroke('#00ff00')
+      this.viewport.addChild(line)
+    }
   }
 }
