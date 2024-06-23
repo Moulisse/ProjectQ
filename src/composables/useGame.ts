@@ -1,9 +1,10 @@
-import { ColliderDesc, RigidBodyDesc, type World } from '@dimforge/rapier2d'
+import type { World } from '@dimforge/rapier2d'
 import type { Point } from 'pixi.js'
 import { Application, Graphics } from 'pixi.js'
 import { Viewport } from 'pixi-viewport'
 import { EDot } from './enemies/dot'
 import type { Enemy } from './enemies/_base'
+import { Scene } from './scenes/_base'
 
 const WORLD_SIZE = 4000
 
@@ -85,8 +86,14 @@ export const useGameStore = defineStore('game', () => {
        */
       app.ticker.add(() => {
         if (flag) {
-          for (const enemy of currentEnemies)
-            enemy.rigidBody.setLinvel(flag.subtract(enemy.graphic.position).normalize().multiply({ x: 250, y: 250 }), true)
+          for (const enemy of currentEnemies) {
+            const direction = flag.subtract(enemy.graphic.position)
+            const speed = 250
+            const approachSpeed = Math.min(speed, direction.magnitude() * speed ** (1 / 3))
+
+            if (direction.magnitude() > 1)
+              enemy.rigidBody.setLinvel(direction.normalize().multiply({ x: approachSpeed, y: approachSpeed }), true)
+          }
         }
         world.step()
 
@@ -105,39 +112,13 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function loadScene() {
-    const x = viewport.worldWidth / 2
-    const y = viewport.worldHeight / 2
-
-    const shape = [
-      { x: 100, y: 0 },
-      { x: 500, y: 0 },
-      { x: 0, y: 500 },
-    ]
-
-    const shapeC = new Float32Array(shape.map(point => Object.values(point)).flat())
-
-    const rigidBodyDesc = RigidBodyDesc.fixed()
-      .setTranslation(x, y)
-    const rigidBody = world.createRigidBody(rigidBodyDesc)
-
-    const colliderDesc = ColliderDesc.convexHull(shapeC)
-    if (colliderDesc)
-      world.createCollider(colliderDesc, rigidBody)
-
-    const graphic = new Graphics()
-    graphic.poly(shape)
-    graphic.position = {
-      x: rigidBody.translation().x,
-      y: rigidBody.translation().y,
-    }
-
-    graphic.fill('#56b8d0')
-    viewport.addChild(graphic)
+    // eslint-disable-next-line no-new
+    new Scene(world, viewport, viewport.worldWidth / 2, viewport.worldHeight / 2)
   }
 
   function startWave() {
     currentEnemies = [
-      ...Array.from({ length: 2 }).map(() =>
+      ...Array.from({ length: 1 }).map(() =>
         new EDot(world, viewport, viewport.worldWidth / 2 - 250, viewport.worldHeight / 2 - 200),
       ),
       ...Array.from({ length: 50 }).map(() =>
