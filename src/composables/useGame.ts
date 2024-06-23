@@ -7,7 +7,7 @@ import type { Enemy } from './enemies/_base'
 
 const WORLD_SIZE = 4000
 
-export default function () {
+export const useGameStore = defineStore('game', () => {
   let world: World
   let app: Application
   let viewport: Viewport
@@ -154,8 +154,10 @@ export default function () {
       ),
     ]
   }
-
   return {
     init,
   }
-}
+})
+
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useGameStore, import.meta.hot))

@@ -47,6 +47,7 @@ export default defineConfig({
           // add any other imports you were relying on
           'vue-router/auto': ['useLink'],
         },
+        'pinia',
       ],
       dts: true,
       dirs: [
