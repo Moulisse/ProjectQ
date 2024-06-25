@@ -6,5 +6,6 @@ onMounted(() => init(canvas.value))
 </script>
 
 <template>
+  <Debug />
   <canvas ref="canvas" />
 </template>

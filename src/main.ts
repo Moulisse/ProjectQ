@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router/auto'
-import { createPinia } from 'pinia'
 import { routes } from 'vue-router/auto-routes'
 import App from './App.vue'
 import 'pixi.js/math-extras'
@@ -16,8 +15,5 @@ const router = createRouter({
   routes,
 })
 app.use(router)
-
-const pinia = createPinia()
-app.use(pinia)
 
 app.mount('#app')

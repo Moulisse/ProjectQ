@@ -1,7 +1,7 @@
 import { ColliderDesc, type RigidBody, RigidBodyDesc, type World } from '@dimforge/rapier2d-compat'
 import { Viewport } from 'pixi-viewport'
 import type { Application } from 'pixi.js'
-import { Graphics } from 'pixi.js'
+import { Container, Graphics, Point } from 'pixi.js'
 import { NavMeshGenerator } from 'navmesh-generator'
 import { NavMesh } from 'navmesh'
 
@@ -74,6 +74,9 @@ export class Scene {
     graphic: Graphics
   }[]
 
+  pointer = ref(new Point())
+  showNavmesh = ref(false)
+
   /**
    * Init Viewport
    * @param app
@@ -87,6 +90,10 @@ export class Scene {
       worldHeight: this.WORLD_SIZE,
       events: app.renderer.events,
       disableOnContextMenu: true,
+    })
+
+    viewport.on('pointermove', (e) => {
+      this.pointer.value = viewport.toLocal(e.global)
     })
 
     // add the viewport to the stage
@@ -109,8 +116,8 @@ export class Scene {
       .clampZoom({
         minWidth: 100,
         minHeight: 100,
-        maxWidth: 1500,
-        maxHeight: 1500,
+        maxWidth: this.WORLD_SIZE,
+        maxHeight: this.WORLD_SIZE,
       })
       .fit()
       .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
@@ -182,30 +189,55 @@ export class Scene {
     }))
     this.navMesh = this.generateNavMesh()
 
-    // Display navMesh
-    // for (const tri of this.navMesh.getPolygons()) {
-    //   const face = new Graphics()
-    //   face.poly(tri.getPoints())
+    /**
+     * Display navMesh
+     */
+    const navmeshContainer = new Container()
+    this.viewport.addChild(navmeshContainer)
 
-    //   face.fill('#00ff0040')
-    //   this.viewport.addChild(face)
+    watch(this.showNavmesh, (value) => {
+      navmeshContainer.visible = value
+    }, { immediate: true })
 
-    //   const line = new Graphics()
+    for (const tri of this.navMesh.getPolygons()) {
+      const face = new Graphics()
+      face.poly(tri.getPoints())
+      face.alpha = 0.2
 
-    //   for (const point of tri.getPoints()) {
-    //     if (tri.getPoints().indexOf(point) === 0)
-    //       line.moveTo(point.x, point.y)
-    //     else
-    //       line.lineTo(point.x, point.y)
+      face.eventMode = 'static'
+      face.on('pointerenter', () => face.alpha = 0.5)
+      face.on('pointerleave', () => face.alpha = 0.2)
 
-    //     const vertex = new Graphics()
-    //     vertex.circle(point.x, point.y, 5)
+      face.fill('#00ff00')
+      navmeshContainer.addChild(face)
 
-    //     vertex.fill('#00ff00')
-    //     this.viewport.addChild(vertex)
-    //   }
-    //   line.stroke('#00ff00')
-    //   this.viewport.addChild(line)
-    // }
+      const line = new Graphics()
+
+      for (const point of tri.getPoints()) {
+        if (tri.getPoints().indexOf(point) === 0) {
+          line.moveTo(point.x, point.y)
+        }
+        else if (tri.getPoints().indexOf(point) === tri.getPoints().length - 1) {
+          line.lineTo(point.x, point.y)
+          line.lineTo(tri.getPoints()[0].x, tri.getPoints()[0].y)
+        }
+        else {
+          line.lineTo(point.x, point.y)
+        }
+
+        const vertex = new Graphics()
+        vertex.circle(point.x, point.y, 2)
+
+        vertex.fill('#00ff00')
+        navmeshContainer.addChild(vertex)
+      }
+      line.stroke(
+        {
+          color: '#00ff00',
+          width: 0.1,
+        },
+      )
+      navmeshContainer.addChild(line)
+    }
   }
 }

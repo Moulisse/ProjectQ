@@ -6,12 +6,15 @@ import { EDot } from './enemies/dot'
 import type { Enemy } from './enemies/_base'
 import { Scene } from './scenes/_base'
 
-export const useGameStore = defineStore('game', () => {
-  let world: World
-  let app: PIXI.Application
+let world: World
+let app: PIXI.Application
 
-  let currentEnemies: Enemy[] = []
+// let scene: Scene | undefined
+const scene = shallowRef<Scene | undefined>()
 
+let currentEnemies: Enemy[] = []
+
+export function useGameStore() {
   /**
    *
    */
@@ -31,11 +34,13 @@ export const useGameStore = defineStore('game', () => {
       autoDensity: true,
     })
 
-    const scene = new Scene(world, app)
+    scene.value = new Scene(world, app)
 
-    scene.viewport.on('mousemove', (e) => {
+    scene.value.viewport.on('pointermove', (e) => {
+      if (!scene.value)
+        return
       for (const enemy of currentEnemies)
-        enemy.setFollow(scene.navMesh, scene.viewport.toLocal(e.global))
+        enemy.setFollow(scene.value.navMesh, scene.value.viewport.toLocal(e.global))
     })
 
     /**
@@ -43,7 +48,9 @@ export const useGameStore = defineStore('game', () => {
      */
     app.ticker.add(() => {
       for (const enemy of currentEnemies) {
-        enemy.setPath(scene.navMesh)
+        if (!scene.value)
+          return
+        enemy.setPath(scene.value.navMesh)
 
         enemy.move()
       }
@@ -56,9 +63,10 @@ export const useGameStore = defineStore('game', () => {
           y: enemy.rigidBody.translation().y,
         }
       }
+      app.render()
     })
 
-    startWave(scene)
+    startWave(scene.value)
   }
 
   function startWave(scene: Scene) {
@@ -82,8 +90,10 @@ export const useGameStore = defineStore('game', () => {
   }
   return {
     init,
+    scene,
   }
-})
+}
 
-if (import.meta.hot)
-  import.meta.hot.accept(acceptHMRUpdate(useGameStore, import.meta.hot))
+if (import.meta.hot) {
+  import.meta.hot.accept()
+}

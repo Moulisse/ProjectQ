@@ -42,6 +42,7 @@ export default defineConfig({
       imports: [
         'vue',
         '@vueuse/core',
+        '@vueuse/math',
         VueRouterAutoImports,
         {
           // add any other imports you were relying on
