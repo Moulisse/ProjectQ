@@ -1,11 +1,12 @@
 import { ColliderDesc, type RigidBody, RigidBodyDesc, type World } from '@dimforge/rapier2d-compat'
 import { Viewport } from 'pixi-viewport'
 import type { Application } from 'pixi.js'
-import { Container, Graphics, Point } from 'pixi.js'
-import { NavMeshGenerator } from 'navmesh-generator'
-import { NavMesh } from 'navmesh'
+import { Graphics, Point } from 'pixi.js'
+import type NavMesh from 'navmesh'
 import type { Obstacle, ObstacleData } from '../_types/Shapes'
 import theme from '~/theme'
+
+const { generateNavMesh } = useNavmesh()
 
 export class Scene {
   WORLD_SIZE = 3000
@@ -64,7 +65,6 @@ export class Scene {
   }[]
 
   pointer = ref(new Point())
-  showNavmesh = ref(false)
 
   /**
    * Init Viewport
@@ -90,7 +90,9 @@ export class Scene {
 
     // activate plugins
     viewport
-      .drag()
+      .drag({
+        mouseButtons: 'left',
+      })
       .pinch()
       .wheel({
         percent: 2,
@@ -108,6 +110,7 @@ export class Scene {
         maxWidth: this.WORLD_SIZE,
         maxHeight: this.WORLD_SIZE,
       })
+      .fit()
       .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
 
     // adds world background
@@ -152,19 +155,6 @@ export class Scene {
   }
 
   /**
-   *
-   */
-  private generateNavMesh() {
-    const navMeshGenerator = new NavMeshGenerator(0, 0, this.WORLD_SIZE, this.WORLD_SIZE, 3)
-    const navMeshPolygons = navMeshGenerator.buildNavMesh(
-      this.obstaclesData.map(obs => obs.shape),
-      5,
-    )
-
-    return new NavMesh(navMeshPolygons)
-  }
-
-  /**
    * Initialize viewport and generate obstacle
    * @param world
    * @param app
@@ -176,54 +166,6 @@ export class Scene {
       rigidBody: this.generateRigidBody(obstacle, world),
       graphic: this.generateGraphics(obstacle),
     }))
-    this.navMesh = this.generateNavMesh()
-
-    /**
-     * Display navMesh
-     */
-    const navmeshContainer = new Container()
-    this.viewport.addChild(navmeshContainer)
-
-    watch(this.showNavmesh, (value) => {
-      navmeshContainer.visible = value
-    }, { immediate: true })
-
-    for (const tri of this.navMesh.getPolygons()) {
-      const face = new Graphics()
-      face.poly(tri.getPoints())
-      face.alpha = 0.2
-
-      face.fill('#00ff00')
-
-      navmeshContainer.addChild(face)
-
-      const line = new Graphics()
-
-      for (const point of tri.getPoints()) {
-        if (tri.getPoints().indexOf(point) === 0) {
-          line.moveTo(point.x, point.y)
-        }
-        else if (tri.getPoints().indexOf(point) === tri.getPoints().length - 1) {
-          line.lineTo(point.x, point.y)
-          line.lineTo(tri.getPoints()[0].x, tri.getPoints()[0].y)
-        }
-        else {
-          line.lineTo(point.x, point.y)
-        }
-
-        const vertex = new Graphics()
-        vertex.circle(point.x, point.y, 2)
-
-        vertex.fill('#00ff00')
-        navmeshContainer.addChild(vertex)
-      }
-      line.stroke(
-        {
-          color: '#00ff00',
-          width: 0.1,
-        },
-      )
-      navmeshContainer.addChild(line)
-    }
+    this.navMesh = generateNavMesh(this.viewport, this.WORLD_SIZE, this.obstaclesData.map(obs => obs.shape))
   }
 }

@@ -10,5 +10,6 @@ export default {
       2: '#06d6a0',
       3: '#118ab2',
     },
+    player: '#fff',
   },
 }

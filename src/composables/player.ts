@@ -2,14 +2,15 @@ import type { World } from '@dimforge/rapier2d-compat'
 import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier2d-compat'
 import type { Viewport } from 'pixi-viewport'
 import { Graphics } from 'pixi.js'
-import { Character } from '../character/character'
+import { Character } from './character/character'
 import theme from '~/theme'
 
-export class Enemy extends Character {
+export class Player extends Character {
   generateRigidBody(world: World, x: number, y: number) {
     const rigidBodyDesc = RigidBodyDesc.dynamic()
       .setTranslation(x + Math.random() / 100, y + Math.random() / 100)
       .setLinearDamping(10)
+
     const rigidBody = world.createRigidBody(rigidBodyDesc)
 
     const colliderDesc = ColliderDesc.ball(this.size)
@@ -26,7 +27,7 @@ export class Enemy extends Character {
       y: this.rigidBody.translation().y,
     }
 
-    graphic.fill(theme.colors.life[Math.floor(Math.random() * 4) as 0])
+    graphic.fill(theme.colors.player)
     viewport.addChild(graphic)
 
     graphic.eventMode = 'static'
@@ -39,6 +40,8 @@ export class Enemy extends Character {
     super(world, viewport, {
       x,
       y,
+      speed: 150,
+      size: 32,
     })
   }
 }

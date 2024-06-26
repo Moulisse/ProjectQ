@@ -5,6 +5,7 @@ import 'pixi.js/events'
 import { EDot } from './enemies/dot'
 import type { Enemy } from './enemies/_base'
 import { Scene } from './scenes/_base'
+import { Player } from './player'
 
 let world: World
 let app: PIXI.Application
@@ -14,9 +15,11 @@ const scene = shallowRef<Scene | undefined>()
 
 let currentEnemies: Enemy[] = []
 
-export function useGameStore() {
+const player = shallowRef<Player | undefined>()
+
+export default function () {
   /**
-   *
+   * Create the world, the app, the scene, and start the game
    */
   async function init(canvas: HTMLCanvasElement) {
     await RAPIER.init()
@@ -36,12 +39,22 @@ export function useGameStore() {
 
     scene.value = new Scene(world, app)
 
-    scene.value.viewport.on('pointermove', (e) => {
-      if (!scene.value)
+    scene.value.viewport.on('pointerdown', (e) => {
+      if (!player.value || !scene.value || e.button !== 2)
         return
-      for (const enemy of currentEnemies)
-        enemy.setFollow(scene.value.navMesh, scene.value.viewport.toLocal(e.global))
+      player.value.setFollow(scene.value.navMesh, scene.value.viewport.toLocal(e.global))
     })
+
+    player.value = new Player(world, scene.value.viewport, scene.value.viewport.worldWidth / 2 - 1200, scene.value.viewport.worldHeight / 2)
+    setTimeout(() => scene.value?.viewport.animate({
+      scale: 1.5,
+      position: {
+        x: 0,
+        y: scene.value.viewport.worldHeight / 2,
+      },
+      time: 1500,
+      ease: 'easeOutSine',
+    }))
 
     /**
      * Add physics loop
@@ -51,22 +64,35 @@ export function useGameStore() {
         if (!scene.value)
           return
         enemy.setPath(scene.value.navMesh)
-
         enemy.move()
       }
 
+      if (player.value && scene.value) {
+        player.value.setPath(scene.value.navMesh)
+        player.value.move()
+      }
       world.step()
 
       for (const enemy of currentEnemies) {
-        enemy.graphic.position = {
+        enemy.position.value = {
           x: enemy.rigidBody.translation().x,
           y: enemy.rigidBody.translation().y,
         }
       }
+      if (player.value && scene.value) {
+        player.value.position.value = {
+          x: player.value.rigidBody.translation().x,
+          y: player.value.rigidBody.translation().y,
+        }
+      }
+
       app.render()
     })
 
     startWave(scene.value)
+
+    for (const enemy of currentEnemies)
+      enemy.setFollow(scene.value.navMesh, player.value.position)
   }
 
   function startWave(scene: Scene) {
@@ -91,6 +117,7 @@ export function useGameStore() {
   return {
     init,
     scene,
+    player,
   }
 }
 

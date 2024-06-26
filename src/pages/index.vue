@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { init } = useGameStore()
+const { init } = useGame()
 
 const canvas = ref()
 onMounted(() => init(canvas.value))
