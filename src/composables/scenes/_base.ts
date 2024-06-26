@@ -4,10 +4,11 @@ import type { Application } from 'pixi.js'
 import { Container, Graphics, Point } from 'pixi.js'
 import { NavMeshGenerator } from 'navmesh-generator'
 import { NavMesh } from 'navmesh'
-import type { Obstacle, ObstacleData, ObstacleTypes } from '../_types/Shapes'
+import type { Obstacle, ObstacleData } from '../_types/Shapes'
+import theme from '~/theme'
 
 export class Scene {
-  WORLD_SIZE = 2000
+  WORLD_SIZE = 3000
 
   viewport: Viewport
   navMesh: NavMesh
@@ -54,15 +55,6 @@ export class Scene {
         { x: this.WORLD_SIZE * 0.2, y: this.WORLD_SIZE * 0.5 },
       ],
     },
-    ...Array.from({ length: 10 }).map((_v, i) => ({
-      type: 'convexHull' as ObstacleTypes,
-      shape: [
-        { x: this.WORLD_SIZE * (0.29 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.3 },
-        { x: this.WORLD_SIZE * (0.31 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.3 },
-        { x: this.WORLD_SIZE * (0.31 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.35 },
-        { x: this.WORLD_SIZE * (0.29 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.35 },
-      ],
-    })),
   ]
 
   obstacles: {
@@ -116,7 +108,6 @@ export class Scene {
         maxWidth: this.WORLD_SIZE,
         maxHeight: this.WORLD_SIZE,
       })
-      .fit()
       .moveCenter(viewport.worldWidth / 2, viewport.worldHeight / 2)
 
     // adds world background
@@ -124,7 +115,7 @@ export class Scene {
       zIndex: -1,
     })
     graphic.rect(0, 0, viewport.worldWidth, viewport.worldHeight)
-    graphic.fill('#101220')
+    graphic.fill(theme.colors.neutral.back)
     viewport.addChild(graphic)
 
     return viewport
@@ -154,7 +145,7 @@ export class Scene {
   private generateGraphics(data: ObstacleData) {
     const graphic = new Graphics()
     graphic.poly(data.shape)
-    graphic.fill('#56b8d0')
+    graphic.fill(theme.colors.neutral.front)
     this.viewport.addChild(graphic)
 
     return graphic
@@ -202,11 +193,8 @@ export class Scene {
       face.poly(tri.getPoints())
       face.alpha = 0.2
 
-      face.eventMode = 'static'
-      face.on('pointerenter', () => face.alpha = 0.5)
-      face.on('pointerleave', () => face.alpha = 0.2)
-
       face.fill('#00ff00')
+
       navmeshContainer.addChild(face)
 
       const line = new Graphics()

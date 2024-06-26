@@ -4,6 +4,7 @@ import type { NavMesh } from 'navmesh'
 import type { Viewport } from 'pixi-viewport'
 import { Graphics, Point } from 'pixi.js'
 import Vector2 from '../_types/Shapes'
+import theme from '~/theme'
 
 export class Enemy {
   rigidBody: RigidBody
@@ -11,6 +12,9 @@ export class Enemy {
 
   protected follow: Point | null = null
   private path: Vector2[] | null = null
+
+  private speed = 100
+  private size = 18
 
   /**
    *
@@ -21,7 +25,7 @@ export class Enemy {
       .setLinearDamping(10)
     const rigidBody = world.createRigidBody(rigidBodyDesc)
 
-    const colliderDesc = ColliderDesc.ball(10)
+    const colliderDesc = ColliderDesc.ball(this.size)
     world.createCollider(colliderDesc, rigidBody)
 
     return rigidBody
@@ -32,13 +36,13 @@ export class Enemy {
    */
   generateGraphics(viewport: Viewport) {
     const graphic = new Graphics()
-    graphic.circle(0, 0, 9)
+    graphic.circle(0, 0, this.size - 1)
     graphic.position = {
       x: this.rigidBody.translation().x,
       y: this.rigidBody.translation().y,
     }
 
-    graphic.fill(0xDE3249)
+    graphic.fill(theme.colors.life[Math.floor(Math.random() * 4) as 0])
     viewport.addChild(graphic)
 
     graphic.eventMode = 'static'
@@ -79,11 +83,10 @@ export class Enemy {
 
     const direction = new Point(target.x, target.y).subtract(this.rigidBody.translation())
 
-    const speed = 250
     // speed should decrease when approaching the follow target
     const approachSpeed = this.path.indexOf(target) === this.path.length - 1
-      ? Math.min(speed, direction.magnitude() * speed ** (1 / 3))
-      : speed
+      ? Math.min(this.speed, direction.magnitude() * this.speed ** (1 / 3))
+      : this.speed
 
     if (direction.magnitude() > 1)
       this.rigidBody.setLinvel(direction.normalize().multiply({ x: approachSpeed, y: approachSpeed }), true)
