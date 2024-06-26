@@ -4,10 +4,7 @@ import type { Application } from 'pixi.js'
 import { Container, Graphics, Point } from 'pixi.js'
 import { NavMeshGenerator } from 'navmesh-generator'
 import { NavMesh } from 'navmesh'
-
-type Shape = { x: number, y: number } []
-type ObstacleTypes = 'polyligne' | 'convexHull'
-interface ObstacleData { type: ObstacleTypes, shape: Shape }
+import type { Obstacle, ObstacleData, ObstacleTypes } from '../_types/Shapes'
 
 export class Scene {
   WORLD_SIZE = 2000
@@ -69,7 +66,7 @@ export class Scene {
   ]
 
   obstacles: {
-    shape: Shape
+    shape: Obstacle
     rigidBody: RigidBody
     graphic: Graphics
   }[]
@@ -157,16 +154,17 @@ export class Scene {
   private generateGraphics(data: ObstacleData) {
     const graphic = new Graphics()
     graphic.poly(data.shape)
-
     graphic.fill('#56b8d0')
     this.viewport.addChild(graphic)
 
     return graphic
   }
 
+  /**
+   *
+   */
   private generateNavMesh() {
     const navMeshGenerator = new NavMeshGenerator(0, 0, this.WORLD_SIZE, this.WORLD_SIZE, 3)
-
     const navMeshPolygons = navMeshGenerator.buildNavMesh(
       this.obstaclesData.map(obs => obs.shape),
       5,

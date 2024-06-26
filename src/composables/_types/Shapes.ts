@@ -39,3 +39,7 @@ export default class Vector2 {
     return new Vector2(this.x, this.y)
   }
 }
+
+export type Obstacle = { x: number, y: number } []
+export type ObstacleTypes = 'polyligne' | 'convexHull'
+export interface ObstacleData { type: ObstacleTypes, shape: Obstacle }
