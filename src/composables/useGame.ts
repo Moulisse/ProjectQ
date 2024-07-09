@@ -46,15 +46,22 @@ export default function () {
     })
 
     player.value = new Player(world, scene.value.viewport, scene.value.viewport.worldWidth / 2 - 1200, scene.value.viewport.worldHeight / 2)
-    setTimeout(() => scene.value?.viewport.animate({
-      scale: 1.5,
-      position: {
-        x: 0,
-        y: scene.value.viewport.worldHeight / 2,
-      },
-      time: 1500,
-      ease: 'easeOutSine',
-    }))
+    // setTimeout(() => scene.value?.viewport.animate({
+    //   scale: 1.5,
+    //   position: {
+    //     x: 0,
+    //     y: scene.value.viewport.worldHeight / 2,
+    //   },
+    //   time: 1500,
+    //   ease: 'easeOutSine',
+    // }))
+
+    scene.value.viewport.on('pointermove', (e) => {
+      if (!scene.value)
+        return
+      for (const enemy of currentEnemies)
+        enemy.setFollow(scene.value.navMesh, scene.value.viewport.toLocal(e.global))
+    })
 
     /**
      * Add physics loop
@@ -91,27 +98,42 @@ export default function () {
 
     startWave(scene.value)
 
-    for (const enemy of currentEnemies)
-      enemy.setFollow(scene.value.navMesh, player.value.position)
+    // for (const enemy of currentEnemies)
+    //   enemy.setFollow(scene.value.navMesh, player.value.position)
   }
 
   function startWave(scene: Scene) {
     currentEnemies = [
       ...Array.from({ length: 1 }).map(() =>
-        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 - 250, scene.viewport.worldHeight / 2 - 200),
+        new EDot(world, scene.viewport, {
+          x: scene.viewport.worldWidth / 2 - 250,
+          y: scene.viewport.worldHeight / 2 - 200,
+        }),
       ),
-      ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 - 250, scene.viewport.worldHeight / 2 - 200),
-      ),
-      ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 - 250, scene.viewport.worldHeight / 2 + 200),
-      ),
-      ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 + 250, scene.viewport.worldHeight / 2 - 200),
-      ),
-      ...Array.from({ length: 50 }).map(() =>
-        new EDot(world, scene.viewport, scene.viewport.worldWidth / 2 + 250, scene.viewport.worldHeight / 2 + 200),
-      ),
+      // ...Array.from({ length: 50 }).map(() =>
+      //   new EDot(world, scene.viewport, {
+      //     x: scene.viewport.worldWidth / 2 - 250,
+      //     y: scene.viewport.worldHeight / 2 - 200,
+      //   }),
+      // ),
+      // ...Array.from({ length: 50 }).map(() =>
+      //   new EDot(world, scene.viewport, {
+      //     x: scene.viewport.worldWidth / 2 - 250,
+      //     y: scene.viewport.worldHeight / 2 + 200,
+      //   }),
+      // ),
+      // ...Array.from({ length: 50 }).map(() =>
+      //   new EDot(world, scene.viewport, {
+      //     x: scene.viewport.worldWidth / 2 + 250,
+      //     y: scene.viewport.worldHeight / 2 - 200,
+      //   }),
+      // ),
+      // ...Array.from({ length: 50 }).map(() =>
+      //   new EDot(world, scene.viewport, {
+      //     x: scene.viewport.worldWidth / 2 + 250,
+      //     y: scene.viewport.worldHeight / 2 + 200,
+      //   }),
+      // ),
     ]
   }
   return {

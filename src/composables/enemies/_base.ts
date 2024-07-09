@@ -34,11 +34,4 @@ export class Enemy extends Character {
 
     return graphic
   }
-
-  constructor(world: World, viewport: Viewport, x: number, y: number) {
-    super(world, viewport, {
-      x,
-      y,
-    })
-  }
 }

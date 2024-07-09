@@ -56,6 +56,15 @@ export class Scene {
         { x: this.WORLD_SIZE * 0.2, y: this.WORLD_SIZE * 0.5 },
       ],
     },
+    ...Array.from({ length: 10 }).map((_v, i) => ({
+      type: 'convexHull' as const,
+      shape: [
+        { x: this.WORLD_SIZE * (0.29 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.3 },
+        { x: this.WORLD_SIZE * (0.31 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.3 },
+        { x: this.WORLD_SIZE * (0.31 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.35 },
+        { x: this.WORLD_SIZE * (0.29 + 0.4 * i / 10), y: this.WORLD_SIZE * 0.35 },
+      ],
+    })),
   ]
 
   obstacles: {
